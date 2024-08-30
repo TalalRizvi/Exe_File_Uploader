@@ -29,11 +29,11 @@ jobs:
 
     - name: Build the executable
       run: |
+        echo "Running PyInstaller..."
         pyinstaller --onefile my_script.py
         echo "PyInstaller completed with exit code $?"
-        echo "Listing contents of the dist directory:"
-        ls dist || echo "No dist directory found. Listing all files and directories:"
-        ls -R  # Recursively list all files and directories to see where files are being placed
+        echo "Listing all directories and files in the current workspace:"
+        ls -R  # List all files and directories recursively
 
     - name: Check if EXE was created
       run: |
