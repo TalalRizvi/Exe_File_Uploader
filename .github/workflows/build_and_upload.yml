@@ -28,7 +28,9 @@ jobs:
       run: mkdir -p output
 
     - name: Build the executable
-      run: pyinstaller --onefile my_script.py
+      run: |
+        pyinstaller --onefile my_script.py
+        ls dist  # List the contents of the dist directory to verify the EXE was created
 
     - name: Move the executable to output directory
       run: |
