@@ -31,7 +31,8 @@ jobs:
       run: |
         pyinstaller --onefile my_script.py
         echo "PyInstaller completed with exit code $?"
-        echo "Listing contents of the working directory:"
+        echo "Listing contents of the dist directory:"
+        ls dist || echo "No dist directory found. Listing all files and directories:"
         ls -R  # Recursively list all files and directories to see where files are being placed
 
     - name: Check if EXE was created
