@@ -30,7 +30,13 @@ jobs:
     - name: Build the executable
       run: |
         pyinstaller --onefile my_script.py
+        echo "Contents of dist directory:"
         ls dist  # List the contents of the dist directory to verify the EXE was created
+        echo "Contents of output directory before moving the EXE:"
+        ls output || echo "Output directory is empty or does not exist"
+
+    - name: Ensure output directory exists
+      run: mkdir -p output  # Ensure the output directory exists
 
     - name: Move the executable to output directory
       run: |
