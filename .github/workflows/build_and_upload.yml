@@ -1,4 +1,4 @@
-name: Build and Upload EXE
+name: Debug PyInstaller
 
 on:
   push:
@@ -22,17 +22,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-
-    - name: Create output directory
-      run: mkdir -p output
+        pip install pyinstaller
 
     - name: Build the executable
       run: |
         echo "Running PyInstaller..."
         pyinstaller --onefile my_script.py || { echo "PyInstaller failed"; exit 1; }
         echo "PyInstaller completed with exit code $?"
-        echo "Listing contents of the current directory:"
+        echo "Listing all files and directories:"
         ls -R  # List all files and directories recursively
 
     - name: Check if EXE was created
@@ -46,36 +43,3 @@ jobs:
           echo "EXE file not found in the dist directory.";
           exit 1;
         fi
-
-    - name: Move the executable to output directory
-      run: |
-        if [ -f output/my_executable.exe ]; then rm output/my_executable.exe; fi
-        mv dist/my_script.exe output/my_executable.exe || { echo "Failed to move EXE file"; exit 1; }
-
-    - name: Upload the EXE to Google Drive
-      env:
-        GDRIVE_CREDENTIALS_JSON: ${{ secrets.GDRIVE_CREDENTIALS_JSON }}
-      run: |
-        echo "$GDRIVE_CREDENTIALS_JSON" > credentials.json
-        python <<EOF
-        from googleapiclient.discovery import build
-        from google.oauth2.service_account import Credentials
-        from googleapiclient.http import MediaFileUpload
-
-        SCOPES = ['https://www.googleapis.com/auth/drive.file']
-        creds = Credentials.from_service_account_file('credentials.json', scopes=SCOPES)
-
-        drive_service = build('drive', 'v3', credentials=creds)
-        folder_id = '1uNNApyN0kPFnEUSpo94nfA90Fa3mNmf1'
-        file_metadata = {'name': 'my_executable.exe', 'parents': [folder_id]}
-        media = MediaFileUpload('output/my_executable.exe', mimetype='application/vnd.microsoft.portable-executable')
-        file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-
-        print(f"File uploaded successfully with ID: {file.get('id')}")
-        EOF
-
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: exe-files
-        path: output/**
