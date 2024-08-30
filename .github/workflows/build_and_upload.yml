@@ -30,13 +30,21 @@ jobs:
     - name: Build the executable
       run: |
         pyinstaller --onefile my_script.py
-        echo "Contents of dist directory:"
-        ls dist  # List the contents of the dist directory to verify the EXE was created
-        echo "Contents of output directory before moving the EXE:"
-        ls output || echo "Output directory is empty or does not exist"
+        echo "PyInstaller completed with exit code $?"
+        echo "Listing contents of the working directory:"
+        ls -R  # Recursively list all files and directories to see where files are being placed
 
-    - name: Ensure output directory exists
-      run: mkdir -p output  # Ensure the output directory exists
+    - name: Check if EXE was created
+      run: |
+        if [ ! -d dist ]; then
+          echo "Dist directory not found, indicating PyInstaller failed to create the EXE.";
+          exit 1;
+        fi
+
+        if [ ! -f dist/my_script.exe ]; then
+          echo "EXE file not found in the dist directory.";
+          exit 1;
+        fi
 
     - name: Move the executable to output directory
       run: |
